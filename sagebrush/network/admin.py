@@ -27,8 +27,11 @@ class EventsInline(admin.TabularInline):
 class PersonAdmin(admin.ModelAdmin):
     inlines = [RelationshipInline, EventsInline]
     list_display = ("get_full_name", "occupation", "dob", "dod", "home")
-    list_filter = ["last_name", "dob", "dod", "home", "farm_ranch_location"]
+    list_filter = ["last_name", "dob", "dod", "home", "farm_ranch_location", "events"]
 
+class EventAdmin(admin.ModelAdmin):
+    list_display = ("name", "date_start", "date_end", "location")
+    list_filter = ["date_start", "date_end", "location"]
 
 @admin.register(Alias)
 class AliasAdmin(admin.ModelAdmin):
@@ -41,6 +44,6 @@ class PoliticalAffiliationAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Location)
-admin.site.register(Event)
+admin.site.register(Event, EventAdmin)
 admin.site.register(Organization)
 admin.site.register(FamilyMemberRelationship)
