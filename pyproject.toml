@@ -170,6 +170,8 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+django-taggit = "^5.0.1"
+taggit-selectize = "^2.11.0"
 
 [build-system]
 requires = ["poetry-core"]

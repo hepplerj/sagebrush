@@ -278,3 +278,5 @@ sagebrush/media/
 .env
 .envs/*
 !.envs/.local/
+
+backup.tar

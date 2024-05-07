@@ -1,6 +1,8 @@
 from datetime import date
 
 from django.db import models
+from django.utils.timezone import now
+from taggit.managers import TaggableManager
 
 
 class Person(models.Model):
@@ -9,13 +11,11 @@ class Person(models.Model):
     last_name = models.CharField(max_length=255, blank=True)
     aliases = models.ManyToManyField("Alias", blank=True)
     dob = models.DateField(
-        default="2000-01-01",
         verbose_name="Date of Birth",
         blank=True,
         null=True,
     )
     dod = models.DateField(
-        default="2000-01-01",
         verbose_name="Date of Death",
         blank=True,
         null=True,
@@ -25,7 +25,7 @@ class Person(models.Model):
         blank=True,
         null=True,
     )
-    occupation = models.CharField(max_length=100, blank=True)
+    # occupation = models.CharField(max_length=255, blank=True, null=True)
     political_affiliations = models.ManyToManyField(
         "PoliticalAffiliation",
         blank=True,
@@ -41,7 +41,7 @@ class Person(models.Model):
         verbose_name="Known collaborators",
     )
     home = models.ForeignKey(
-        "network.Location",
+        "Location",
         on_delete=models.PROTECT,
         related_name="residents",
         default=1,
@@ -49,7 +49,7 @@ class Person(models.Model):
         null=True,
     )
     farm_ranch_location = models.ManyToManyField(
-        "network.Location",
+        "Location",
         related_name="farmers_ranchers",
         blank=True,
         verbose_name="Farm or ranch location(s)",
@@ -61,6 +61,18 @@ class Person(models.Model):
         through_fields=("person", "related"),
         blank=True,
         symmetrical=False,
+    )
+    tags = TaggableManager(blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    created_by = models.ForeignKey(
+        "users.User",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        editable=False,
     )
 
     def __str__(self):
@@ -95,6 +107,7 @@ class PoliticalAffiliation(models.Model):
 
     def __str__(self):
         return self.name
+
 
 class FamilyMemberRelationship(models.Model):
     RELATIONSHIP_TYPES = [
@@ -195,19 +208,22 @@ class Location(models.Model):
         ("WV", "West Virginia"),
         ("WI", "Wisconsin"),
         ("WY", "Wyoming"),
+        ("Un", "Unknown"),
     )
 
     city = models.CharField(max_length=100, blank=True)
     state = models.CharField(max_length=2, choices=STATES, default=1)
     address = models.CharField(max_length=100, blank=True)
     events = models.ManyToManyField(
-        "network.Event",
+        "Event",
         related_name="locations",
         blank=True,
         verbose_name="Known events at this location",
     )
 
     def __str__(self):
+        if self.state == "Un":
+            return "Unknown"
         return f"{self.city}, {self.state}"
 
 
@@ -256,3 +272,34 @@ class Organization(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class FederalOrganization(models.Model):
+    name = models.CharField(max_length=100)
+    members = models.ManyToManyField(
+        Person,
+        related_name="federal_organizations",
+        blank=True,
+    )
+
+    def __str__(self):
+        return self.name
+
+
+class Occupation(models.Model):
+    name = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
+class OccupationHistory(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    occupation = models.ForeignKey(Occupation, on_delete=models.CASCADE)
+    start_date = models.DateField()
+    end_date = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return (
+            f"{self.person} - {self.occupation} ({self.start_date} - {self.end_date})"
+        )

@@ -2,8 +2,7 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.urls import include
-from django.urls import path
+from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
 
@@ -15,6 +14,7 @@ urlpatterns = [
         name="about",
     ),
     # Django Admin, use {% url 'admin:index' %}
+    path("taggit/", include("taggit_selectize.urls")),
     path(settings.ADMIN_URL, admin.site.urls),
     # User management
     path("users/", include("sagebrush.users.urls", namespace="users")),
