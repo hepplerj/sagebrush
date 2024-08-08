@@ -296,8 +296,11 @@ class Occupation(models.Model):
 class OccupationHistory(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
     occupation = models.ForeignKey(Occupation, on_delete=models.CASCADE)
-    start_date = models.DateField()
+    start_date = models.DateField(blank=True, null=True)
     end_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Occupation Histories"
 
     def __str__(self):
         return (
