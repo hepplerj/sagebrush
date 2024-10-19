@@ -25,7 +25,6 @@ class Person(models.Model):
         blank=True,
         null=True,
     )
-    # occupation = models.CharField(max_length=255, blank=True, null=True)
     political_affiliations = models.ManyToManyField(
         "PoliticalAffiliation",
         blank=True,
@@ -153,7 +152,7 @@ class FamilyMemberRelationship(models.Model):
     )
 
     def __str__(self) -> str:
-        return f"{self.person} is a {self.relation_type} of {self.related}"
+        return f"{self.related} is a {self.relation_type} of {self.person}"
 
 
 class Location(models.Model):
