@@ -4,6 +4,9 @@ from django.db import models
 from django.utils.timezone import now
 from taggit.managers import TaggableManager
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Person(models.Model):
     first_name = models.CharField(max_length=255, blank=True)
@@ -219,11 +222,40 @@ class Location(models.Model):
         blank=True,
         verbose_name="Known events at this location",
     )
+    latitude = models.FloatField(blank=True, null=True)
+    longitude = models.FloatField(blank=True, null=True)
+
+    created_at = models.DateTimeField(auto_now_add=True, editable=False)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         if self.state == "Un":
             return "Unknown"
         return f"{self.city}, {self.state}"
+
+    # On save, the following tries to derive the latlon from the town_city and country
+    # fields. If successful, it stores the latlon in the latlon field.
+    def save(self, *args, **kwargs):
+        if self.latitude is None or self.longitude is None:
+            try:
+                from geopy.geocoders import Nominatim
+
+                geolocator = Nominatim(user_agent="sagebrush")
+                location_components = [
+                    self.address,
+                    self.city,
+                    self.state,
+                    "United States",
+                ]
+                location_string = " ".join(filter(None, location_components))
+                location = geolocator.geocode(location_string)
+
+                if location is not None:
+                    self.latitude = str(location.latitude)
+                    self.longitude = str(location.longitude)
+            except Exception as e:
+                logger.warning("Warning geocoding: " + str(e) + str(self))
+        super().save(*args, **kwargs)
 
 
 class Event(models.Model):
