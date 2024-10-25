@@ -172,6 +172,8 @@ readme = "README.md"
 python = "^3.11"
 django-taggit = "^5.0.1"
 taggit-selectize = "^2.11.0"
+djangorestframework = "^3.15.2"
+geopy = "^2.4.1"
 
 [build-system]
 requires = ["poetry-core"]
