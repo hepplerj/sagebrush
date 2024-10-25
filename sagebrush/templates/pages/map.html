@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}
+Sagebrush - Map
+{% endblock title %}
+
+{% block javascript %}
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    fetch('/api/map/')
+        .then(response => response.json())
+        .then(data => {
+            const locations = data.locations;
+
+            const map = L.map('map').setView([37.8, -96], 4); // Centered on the US
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+
+            locations.forEach(location => {
+                if (location.latitude && location.longitude) {
+                    const marker = L.marker([location.latitude, location.longitude]).addTo(map);
+                    let popupContent = `<b>${location.city}, ${location.state}</b><br>${location.address}<br><br><b>People:</b><ul>`;
+                    location.people.forEach(person => {
+                        popupContent += `<li>${person.first_name} ${person.last_name}</li>`;
+                    });
+                    popupContent += `</ul>`;
+                    marker.bindPopup(popupContent);
+                }
+            });
+        });
+</script>
+{% endblock javascript %}
+
+{% block content %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<style>
+    #map {
+        height: 600px;
+        width: 100%;
+    }
+</style>
+
+<div id="map"></div>
+{% endblock content %}

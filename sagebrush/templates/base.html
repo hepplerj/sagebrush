@@ -81,6 +81,12 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'about' %}">About</a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'network' %}">Network</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'map' %}">Map</a>
+            </li>
             {% if request.user.is_authenticated %}
               <li class="nav-item">
                 <a class="nav-link"
@@ -121,7 +127,6 @@
     {% endif %}
     {% block main %}
       {% block content %}
-        <p>Use this document as a way to quick start any new project.</p>
       {% endblock content %}
     {% endblock main %}
 
