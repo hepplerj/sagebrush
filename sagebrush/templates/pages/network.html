@@ -20,6 +20,7 @@
             stroke-opacity: 0.6;
         }
     </style>
+    <h2 class="text-2xl">Network of people and events</h2>
     <div id="network"></div>
     <script>
         fetch('/api/network/')
@@ -33,7 +34,7 @@
                 const allNodes = [...nodes, ...eventNodes];
                 const allLinks = [...links, ...eventLinks];
 
-                const width = 800;
+                const width = 1200;
                 const height = 600;
 
                 const svg = d3.select("#network")
