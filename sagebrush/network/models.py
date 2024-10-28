@@ -1,12 +1,12 @@
+import logging
 from datetime import date
 
 from django.db import models
 from django.utils.timezone import now
 from taggit.managers import TaggableManager
 
-import logging
-
 logger = logging.getLogger(__name__)
+
 
 class Person(models.Model):
     first_name = models.CharField(max_length=255, blank=True)
@@ -28,8 +28,10 @@ class Person(models.Model):
         blank=True,
         null=True,
     )
-    political_affiliations = models.ManyToManyField(
+    known_political_affiliations = models.ManyToManyField(
         "PoliticalAffiliation",
+        through="PoliticalAffiliationHistory",
+        related_name="political_affiliations",
         blank=True,
     )
     criminal_charges = models.BooleanField(
@@ -63,6 +65,12 @@ class Person(models.Model):
         through_fields=("person", "related"),
         blank=True,
         symmetrical=False,
+    )
+    known_religious_affiliation = models.ManyToManyField(
+        "Religion",
+        through="ReligiousAffiliation",
+        related_name="religious_affiliations",
+        blank=True,
     )
     tags = TaggableManager(blank=True)
 
@@ -111,6 +119,21 @@ class PoliticalAffiliation(models.Model):
         return self.name
 
 
+class PoliticalAffiliationHistory(models.Model):
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    political_affiliation = models.ForeignKey(
+        PoliticalAffiliation, on_delete=models.CASCADE
+    )
+    start_date = models.DateField(blank=True, null=True)
+    end_date = models.DateField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Political Affiliation Histories"
+
+    def __str__(self):
+        return f"{self.person} - {self.political_affiliation} ({self.start_date} - {self.end_date})"
+
+
 class FamilyMemberRelationship(models.Model):
     RELATIONSHIP_TYPES = [
         ("Parent", "Parent"),
@@ -156,6 +179,27 @@ class FamilyMemberRelationship(models.Model):
 
     def __str__(self) -> str:
         return f"{self.related} is a {self.relation_type} of {self.person}"
+
+
+class Religion(models.Model):
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=255, blank=True, verbose_name="Denomination")
+
+    def __str__(self):
+        return self.name
+
+
+class ReligiousAffiliation(models.Model):
+    id = models.AutoField(primary_key=True)
+    person = models.ForeignKey("Person", on_delete=models.CASCADE)
+    religion = models.ForeignKey(Religion, on_delete=models.CASCADE)
+    date_joined = models.DateField(null=True, blank=True)
+
+    class Meta:
+        unique_together = ("person", "religion")
+
+    def __str__(self):
+        return f"{self.person} is {self.religion}"
 
 
 class Location(models.Model):
@@ -213,6 +257,15 @@ class Location(models.Model):
         ("Un", "Unknown"),
     )
 
+    LOCATION_TYPES = (
+        ("In-Holding", "In-Holding"),
+        ("Known Residence", "Known Residence"),
+        ("Allotment", "Allotment"),
+        ("Permit", "Permit"),
+        ("Land Transfer", "Land Transfer"),
+        ("Unknown", "Unknown"),
+    )
+
     city = models.CharField(max_length=100, blank=True)
     state = models.CharField(max_length=2, choices=STATES, default=1)
     address = models.CharField(max_length=100, blank=True)
@@ -222,6 +275,12 @@ class Location(models.Model):
         blank=True,
         verbose_name="Known events at this location",
     )
+    location_type = models.CharField(
+        max_length=255,
+        blank=True,
+        choices=LOCATION_TYPES,
+    )
+    notes = models.TextField(blank=True)
     latitude = models.FloatField(blank=True, null=True)
     longitude = models.FloatField(blank=True, null=True)
 

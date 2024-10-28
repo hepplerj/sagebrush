@@ -1,17 +1,20 @@
 from django.contrib import admin
 
-from .models import (
+from sagebrush.network.models import (
     Alias,
-    Occupation,
-    OccupationHistory,
     Event,
     EventAttendance,
     FamilyMemberRelationship,
     FederalOrganization,
     Location,
+    Occupation,
+    OccupationHistory,
     Organization,
     Person,
     PoliticalAffiliation,
+    PoliticalAffiliationHistory,
+    Religion,
+    ReligiousAffiliation,
 )
 
 
@@ -26,16 +29,32 @@ class EventsInline(admin.TabularInline):
     extra = 1
 
 
+class PoliticalAffiliationInline(admin.TabularInline):
+    model = PoliticalAffiliationHistory
+    extra = 1
+
+
 class EmploymentHistoryInline(admin.TabularInline):
     model = OccupationHistory
     extra = 1
 
 
+class ReligionInline(admin.TabularInline):
+    model = ReligiousAffiliation
+    extra = 1
+
+
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    inlines = [RelationshipInline, EventsInline, EmploymentHistoryInline]
+    inlines = [
+        RelationshipInline,
+        EventsInline,
+        EmploymentHistoryInline,
+        ReligionInline,
+        PoliticalAffiliationInline,
+    ]
     list_display = ("get_full_name", "dob", "dod", "home")
-    list_filter = ["last_name", "dob", "dod", "home", "farm_ranch_location", "events"]
+    list_filter = ["last_name", "home", "farm_ranch_location", "events"]
 
 
 class EventAdmin(admin.ModelAdmin):
@@ -55,6 +74,11 @@ class PoliticalAffiliationAdmin(admin.ModelAdmin):
 
 @admin.register(Occupation)
 class OccupationAdmin(admin.ModelAdmin):
+    pass
+
+
+@admin.register(Religion)
+class ReligionAdmin(admin.ModelAdmin):
     pass
 
 
