@@ -5,23 +5,27 @@ from django.contrib import admin
 from django.urls import include, path
 from django.views import defaults as default_views
 from django.views.generic import TemplateView
+from network.views import MapViewSet, NetworkViewSet
 from rest_framework.routers import DefaultRouter
 
-from network.views import NetworkViewSet, MapViewSet
-
 router = DefaultRouter()
-router.register(r'network', NetworkViewSet, basename='network')
-router.register(r'map', MapViewSet, basename='map')
+router.register(r"network", NetworkViewSet, basename="network")
+router.register(r"map", MapViewSet, basename="map")
 
 urlpatterns = [
     path("", TemplateView.as_view(template_name="pages/home.html"), name="home"),
-    path('api/', include(router.urls)),
+    path("__reload__/", include("django_browser_reload.urls")),
+    path("api/", include(router.urls)),
     path(
         "about/",
         TemplateView.as_view(template_name="pages/about.html"),
         name="about",
     ),
-    path("network/", TemplateView.as_view(template_name="pages/network.html"), name="network"),
+    path(
+        "network/",
+        TemplateView.as_view(template_name="pages/network.html"),
+        name="network",
+    ),
     path("map/", TemplateView.as_view(template_name="pages/map.html"), name="map"),
     # Django Admin, use {% url 'admin:index' %}
     path("taggit/", include("taggit_selectize.urls")),
