@@ -71,6 +71,9 @@ DJANGO_APPS = [
     "django.forms",
 ]
 THIRD_PARTY_APPS = [
+    "tailwind",
+    "theme",
+    "django_browser_reload",
     "crispy_forms",
     "crispy_bootstrap5",
     "allauth",
@@ -91,6 +94,11 @@ INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
 
 TAGGIT_TAGS_FROM_STRING = "taggit_selectize.utils.parse_tags"
 TAGGIT_STRING_FROM_TAGS = "taggit_selectize.utils.join_tags"
+
+INTERNAL_IPS = [
+    "127.0.0.1",
+]
+TAILWIND_APP_NAME = "theme"
 
 # MIGRATIONS
 # ------------------------------------------------------------------------------
@@ -145,6 +153,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "allauth.account.middleware.AccountMiddleware",
+    "django_browser_reload.middleware.BrowserReloadMiddleware",
 ]
 
 # STATIC
